@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'poker';
+  src: url('./assets/PokerInOctoberDemo-Dxm3.otf') format('opentype');;
+  font-weight: normal;
+  font-style: normal;
+}

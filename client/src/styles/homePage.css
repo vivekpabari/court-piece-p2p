@@ -1,0 +1,33 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('../assets/back-1.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 4rem;
+}
+
+.body-text {
+    font-size: 1rem;
+    color: aliceblue;
+    padding: 0.5rem;
+}
+
+.button-container {
+    margin-top: 2rem;
+}
+
+.header {
+    font-size: 5rem;
+    color:cornflowerblue;
+    font-family: 'poker', sans-serif;
+}
+
+.sub-header {
+    color: lightcoral;
+    font-family: 'poker', sans-serif;
+}
