@@ -30,16 +30,16 @@ function CreateOrJoinGameComponent() {
 
     return (
         <>
-            <div>
+            <div className='button-container'>
                 <Button variant='primary' onClick={createGame}>Create New Game</Button>
-                <div>OR</div>
+                <div className='body-text'>OR</div>
                 <InputGroup className="mb-3">
                     <Form.Control
                         type="text"
                         id="inputPassword5"
                         placeholder="Enter the game id"
                     />
-                    <Button variant="outline-secondary">Join Game</Button>
+                    <Button variant="outline-info">Join Game</Button>
                 </InputGroup>
             </div>
             <div>

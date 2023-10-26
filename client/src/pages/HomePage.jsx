@@ -1,11 +1,12 @@
-import CreateOrJoinGameComponent from "../components/CreateOrJoinGameComponent"
+import CreateOrJoinGameComponent from "../components/CreateOrJoinGameComponent";
+import "../styles/homePage.css";
 
 function HomePage() {
     return (
         <>
-            <div>
-                <h1>Chokri</h1>
-                <h2>No logins. No tracking. Just Fun!.</h2>
+            <div className="home-container">
+                <h1 className="header">Chokri</h1>
+                <h2 className="sub-header">No logins. No tracking. Just Fun!</h2>
                 <CreateOrJoinGameComponent />
             </div>
         </>
