@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -5,8 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from "react-router-dom";
 
 
-import { generateRandomID } from '../utils';
-import { useState } from 'react';
+import { generateRandomID } from '../utils/common';
 
 
 function CreateOrJoinGameComponent() {

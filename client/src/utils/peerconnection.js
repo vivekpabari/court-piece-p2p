@@ -1,12 +1,4 @@
-import { io } from 'socket.io-client';
-
-const URL = 'http://localhost:5001';
-export const socket = io(URL, {
-    autoConnect: false
-});
-
-export const generateRandomID = () => Math.random().toString(36).substring(2)
-
+import { socket } from "./socket"
 let onIceCandidate = (event, sender_seat, receiver_socket_id) => {
     console.log("sending candidate")
     if (event.candidate) {
@@ -14,12 +6,11 @@ let onIceCandidate = (event, sender_seat, receiver_socket_id) => {
             "type": "candidate",
             'candidate': event.candidate
         }
-        console.log({ "sender_seat": sender_seat, "data": data, "to": receiver_socket_id })
         socket.emit("data", { "sender_seat": sender_seat, "data": data, "to": receiver_socket_id });
     }
 }
 
-export function createPeerConnection(sender_seat, receiver_socket_id) {
+export function createPeerConnection(sender_seat, receiver_socket_id, handleOtherPlayersReadyState) {
     // list of stun & turn servers
     const configuration = {
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -27,6 +18,10 @@ export function createPeerConnection(sender_seat, receiver_socket_id) {
     const peerConnection = new RTCPeerConnection(configuration);
     peerConnection.onicecandidate = (event) => onIceCandidate(event, sender_seat, receiver_socket_id);
     peerConnection.addEventListener('connectionstatechange', event => {
+        if (peerConnection.connectionState === "connected") {
+            handleOtherPlayersReadyState()
+            console.log("Connecteddd")
+        }
         console.log(peerConnection.connectionState)
     });
     return peerConnection;

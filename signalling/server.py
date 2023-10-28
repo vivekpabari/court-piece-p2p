@@ -1,5 +1,7 @@
 import traceback
 import copy
+import random
+import itertools
 
 from flask import Flask, request
 
@@ -11,6 +13,27 @@ app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 game_room_details = dict()
+cards_room_details = dict()
+
+@socketio.on("get_cards")
+def get_cards(message):
+    game_id = message["game_id"]
+    player_seat = int(message["player_seat"])
+
+    if game_id not in cards_room_details:
+        suits = ["s","c","h","d"]
+        faces = ["2","3","4","5","6","7","8","9","10","j","q","k","a"]
+        cards_room_details[game_id] = list(itertools.product(faces, suits))
+        random.shuffle(cards_room_details[game_id])
+    
+    print(cards_room_details[game_id])
+    print(player_seat)
+    print(player_seat*13,player_seat*13+13)
+    print(cards_room_details[game_id][player_seat*13:player_seat*13 + 13])
+    emit("get_cards", cards_room_details[game_id][player_seat*13:player_seat*13 + 13], to=request.sid)
+
+
+    
 
 @socketio.on("get_users_details")
 def get_users_details(message):

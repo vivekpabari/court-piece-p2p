@@ -1,12 +1,4 @@
-import {
-  Routes,
-  Route,
-  Outlet,
-  Link,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
