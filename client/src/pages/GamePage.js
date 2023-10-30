@@ -8,19 +8,18 @@ import { generateRandomID } from '../utils/common';
 import { createPeerConnection, createOfferAndSend, addDataChannel } from "../utils/peerconnection";
 import GameBoardComponent from "../components/GameBoardComponent";
 import RegistrationFormComponent from "../components/RegistrationFormComponent"
+import "../styles/gamePage.css";
+import CenteredSpinner from "../components/CenteredSpinner";
 
 
 function GamePage() {
     let { gameId } = useParams();
-    const [cards, setCards] = useState();
-    const [playerName, setPlayerName] = useState('');
-    const [playerId, setPlayerId] = useState();
-    const [playerSeat, setPlayerSeat] = useState(0);
-    const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}]);
-    const [playerReady, setPlayerReady] = useState(false);
-    const [otherPlayersReady, setOtherPlayersReady] = useState(2);
-
-
+    const [playerName, setPlayerName] = useState('')
+    const [playerId, setPlayerId] = useState()
+    const [playerSeat, setPlayerSeat] = useState(0)
+    const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
+    const [playerReady, setPlayerReady] = useState(false)
+    const [otherPlayersReady, setOtherPlayersReady] = useState(2)
 
     const handleOtherPlayersReadyState = () => setOtherPlayersReady((otherPlayersReady) => otherPlayersReady + 1)
 
@@ -56,7 +55,6 @@ function GamePage() {
         };
 
     }, [])
-
 
     useEffect(() => {
         socket.on("join", (newOtherPlayer) => {
@@ -103,38 +101,12 @@ function GamePage() {
         return () => { socket.off("data") }
     }, [otherPlayers, playerReady])
 
-    const getCards = async () => {
-        const newCard = await new Promise(resolve => {
-            socket.on("get_cards", (data) => {
-                resolve(data)
-            })
-        })
-        setCards(newCard)
-        console.log("received cards")
-    }
-
-    useEffect(() => {
-        if (otherPlayersReady === 3) {
-            socket.emit("get_cards", { "player_name": playerName, "player_id": playerId, "player_seat": playerSeat, "game_id": gameId })
-            getCards()
-        }
-    }, [otherPlayersReady])
-
-    const WaitSpinner = () => (
-        <div>
-            <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-            </Spinner>
-            <span>Waiting For Other Players</span>
-        </div>
-    )
-
     return (
-        <>
-            {otherPlayersReady === 3 && <GameBoardComponent />}
-            {otherPlayersReady < 3 && playerReady && <WaitSpinner />}
+        <div className="game-container">
+            {otherPlayersReady === 3 && <GameBoardComponent playerId={playerId} playerName={playerName} playerSeat={playerSeat} gameId={gameId} otherPlayers={otherPlayers}/>}
+            {otherPlayersReady < 3 && playerReady && <CenteredSpinner text="Waiting For Other Players" />}
             {otherPlayersReady < 3 && !playerReady && <RegistrationFormComponent handleSubmit={handleSubmitRegistrationForm} otherPlayers={otherPlayers} />}
-        </>
+        </div>
     )
 
 }

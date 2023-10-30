@@ -1,0 +1,25 @@
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px; /* Adjust margin as needed */
+}
+
+.avatars {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.avatar {
+  position: relative;
+  overflow: hidden;
+  width: 100px;
+}
+
+.avatar:not(:first-child) {
+  margin-left: -40px;
+}
+
+.avatar img {
+  width: 100%;
+  display: block;
+}

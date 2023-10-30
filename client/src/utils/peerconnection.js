@@ -40,22 +40,23 @@ const handleIncomingMessage = event => {
 
 
 export function addDataChannel(peerConnection) {
-
     const dataChannelConfigurations = {
         orderer: true,
     }
-
     const dataChannel = peerConnection.createDataChannel("testDataChannel", dataChannelConfigurations);
-
     peerConnection.ondatachannel = (ev) => {
         const receiveChannel = ev.channel;
         receiveChannel.onmessage = handleIncomingMessage;
         receiveChannel.onopen = () => console.log("connection opened");
         receiveChannel.onclose = () => console.log("connection close");
     };
-
     return dataChannel
 }
 
-
-
+export function sendAll(otherPlayers, payload) {
+    otherPlayers.forEach(otherPlayer => {
+        if ("dataChannel" in otherPlayer) {
+            otherPlayer.dataChannel.send(JSON.stringify(payload))
+        }
+    });
+}

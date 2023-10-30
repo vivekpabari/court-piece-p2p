@@ -1,12 +1,9 @@
 import { useRef } from "react";
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-
+import { Container, Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
 
 function RegistrationFormComponent(props) {
 
-    const { otherPlayers } = props 
+    const { otherPlayers } = props
 
     const playerNameRef = useRef(null)
     const playerSeatRef = useRef(null)
@@ -55,19 +52,25 @@ function RegistrationFormComponent(props) {
 
     return (
         <div>
-            <Form onSubmit={handleSubmitPlayerDetails}>
-                <InputGroup className="mb-3">
-                    <Form.Label htmlFor="playerName">What is your name ?</Form.Label>
-                    <Form.Control
-                        type="text"
-                        id="playerName"
-                        placeholder="Enter name"
-                        ref={playerNameRef}
-                    />
-                </InputGroup>
-                <SelectSeat />
-                <Button type="submit" variant="primary">Start</Button>
-            </Form>
+            <Container>
+                <Row className="flex-grow-1 d-flex align-items-center justify-content-center">
+                    <Col xs={12} sm={8} md={6}>
+                        <Form onSubmit={handleSubmitPlayerDetails}>
+                            <InputGroup className="mb-3">
+                                <Form.Label htmlFor="playerName">What is your name ?</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    id="playerName"
+                                    placeholder="Enter name"
+                                    ref={playerNameRef}
+                                />
+                            </InputGroup>
+                            <SelectSeat />
+                            <Button type="submit" variant="primary">Start</Button>
+                        </Form>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     )
 }
