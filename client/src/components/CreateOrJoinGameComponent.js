@@ -1,32 +1,31 @@
-import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Modal from 'react-bootstrap/Modal';
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react'
+import { Button, Form, InputGroup, Modal } from 'react-bootstrap'
+import { useNavigate } from "react-router-dom"
 
 
-import { generateRandomID } from '../utils/common';
+import { generateRandomID } from '../utils/common'
 
 
 function CreateOrJoinGameComponent() {
-    const navigate = useNavigate();
-    
-    const [openModel, setOpenModel] = useState(false);
+    const navigate = useNavigate()
+
+    const [openModel, setOpenModel] = useState(false)
     const [gameId, setGameId] = useState("")
-    const [copySuccess, setCopySuccess] = useState('');
+    const [copySuccess, setCopySuccess] = useState('')
 
     const copyClipBoard = () => {
         navigator.clipboard.writeText(document.location.origin + "/game/" + gameId)
         setCopySuccess(true)
     }
+
     const createGame = () => {
         setGameId(generateRandomID())
-        setOpenModel(true);
+        setOpenModel(true)
     }
-    const handleClose = () => setOpenModel(false);
-    const routeChange = () => navigate("/game/" + gameId);
 
+    const handleClose = () => setOpenModel(false)
+
+    const routeChange = () => navigate("/game/" + gameId)
 
     return (
         <>

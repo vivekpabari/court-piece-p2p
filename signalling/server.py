@@ -21,13 +21,13 @@ def get_cards(message):
     player_seat = int(message["player_seat"])
 
     if game_id not in cards_room_details:
-        cards_room_details[game_id] = ['2S', '3S', '4S', '5S', '6S', '7S', '8S', '9S', 'TS', 'JS', 'QS', 'KS', 'AS', '2C', '3C', '4C', '5C', '6C', '7C', '8C', '9C', 'TC', 'JC', 'QC', 'KC', 'AC', '2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', 'TH', 'JH', 'QH', 'KH', 'AH', '2D', '3D', '4D', '5D', '6D', '7D', '8D', '9D', 'TD', 'JD', 'QD', 'KD', 'AD']
+        cards_room_details[game_id] = ['2S', '3S', '4S', '5S', '6S', '7S', '8S', '9S', 'TS', 'JS', 'QS', 'KS', 'AS', '2C', '3C', '4C', '5C', '6C', '7C', '8C', '9C', 'TC', 'JC', 'QC',
+                                       'KC', 'AC', '2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', 'TH', 'JH', 'QH', 'KH', 'AH', '2D', '3D', '4D', '5D', '6D', '7D', '8D', '9D', 'TD', 'JD', 'QD', 'KD', 'AD']
         random.shuffle(cards_room_details[game_id])
 
-    emit("get_cards", cards_room_details[game_id][player_seat*13:player_seat*13 + 13], to=request.sid)
+    emit("get_cards", cards_room_details[game_id]
+         [player_seat*13:player_seat*13 + 13], to=request.sid)
 
-
-    
 
 @socketio.on("get_users_details")
 def get_users_details(message):
@@ -40,6 +40,10 @@ def get_users_details(message):
         emit(
             "get_users_details", payload, to=request.sid
         )
+    else:
+        emit(
+            "get_users_details", [{}, {}, {}, {}], to=request.sid
+        )
 
 
 @socketio.on("join")
@@ -49,23 +53,35 @@ def join(message):
     player_seat = int(message["player_seat"])
     game_id = message["game_id"]
     if game_id in game_room_details:
-        # checking for duplicate player name and seat
+        # checking for duplicate player name
         if any(
             [
                 player_name == existing_player.get("player_name")
-                or player_seat == existing_player.get("player_seat")
+                and player_id != existing_player.get("player_id")
                 for existing_player in game_room_details[game_id]
             ]
         ):
-            emit("invalid_player_name_or_player_seat", to=request.sid)
+            print("emiting invalid_player_name")
+            emit("invalid_player_name", to=request.sid)
             return
-        else:
-            game_room_details[game_id][player_seat] = {
-                "player_id": player_id,
-                "player_name": player_name,
-                "socket_id": request.sid,
-            }
 
+        # checking for duplicate player seat
+        if any(
+            [
+                player_seat == existing_player.get("player_seat")
+                and player_id != existing_player.get("player_id")
+                for existing_player in game_room_details[game_id]
+            ]
+        ):
+            emit("invalid_player_seat", to=request.sid)
+            return
+
+        game_room_details[game_id][player_seat] = {
+            "player_id": player_id,
+            "player_name": player_name,
+            "socket_id": request.sid,
+        }
+        emit("valid_player_name_or_player_seat", to=request.sid)
     else:  # for player0
         game_room_details[game_id] = [{}, {}, {}, {}]
         game_room_details[game_id][player_seat] = {
@@ -86,6 +102,8 @@ def join(message):
         to=game_id,
         skip_sid=request.sid,
     )
+    emit("valid_player_name_or_player_seat", to=request.sid)
+
 
 @socketio.on("data")
 def transfer_data(message):

@@ -1,0 +1,19 @@
+.cardList {
+    display: inline-flex;
+    flex-direction: row;
+}
+
+.cardList {
+    position: relative;
+    overflow: hidden;
+    width: 100px;
+}
+
+.cardList:not(:first-child) {
+    margin-left: -40px;
+}
+
+.cardList img {
+    width: 100%;
+    display: block;
+}

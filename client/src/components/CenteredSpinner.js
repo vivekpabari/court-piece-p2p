@@ -5,8 +5,8 @@ import "../styles/CenteredSpinner.css"
 const CenteredSpinner = (props) => {
   return (
     <div className="centered-spinner">
-      <Spinner animation="border" variant="dark" />
-      <h4>{props.text}</h4>
+      <Spinner animation="border" variant="light" />
+      <h4 className="text-light">{props.text}</h4>
     </div>
   );
 };

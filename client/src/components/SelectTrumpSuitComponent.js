@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-
 import { Modal, Button } from 'react-bootstrap';
 
 import "../styles/SelectTrumpSuit.css"
 
 function SelectTrumpSuitComponent({ myFirstFivecards, handleSubmitSetTrumpSuit }) {
   const [show, setShow] = useState(true)
-  
-  const handleClose = () => setShow(false); 
+
+  const handleClose = () => setShow(false);
 
   const handleSelect = (suit) => {
     handleSubmitSetTrumpSuit(suit)

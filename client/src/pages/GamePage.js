@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Spinner from 'react-bootstrap/Spinner';
 
 
 import { socket, onDataSocketEvent } from "../utils/socket";
@@ -13,21 +12,13 @@ import CenteredSpinner from "../components/CenteredSpinner";
 
 
 function GamePage() {
-    let { gameId } = useParams();
-    const [playerName, setPlayerName] = useState('')
+    let { gameId } = useParams()
+
+    const [playerName, setPlayerName] = useState()
     const [playerId, setPlayerId] = useState()
     const [playerSeat, setPlayerSeat] = useState(0)
-    const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
-    const [playerReady, setPlayerReady] = useState(false)
-    const [otherPlayersReady, setOtherPlayersReady] = useState(2)
-
-    const handleOtherPlayersReadyState = () => setOtherPlayersReady((otherPlayersReady) => otherPlayersReady + 1)
-
-    const handleSubmitRegistrationForm = (_playerName, _playerSeat) => {
-        setPlayerName(_playerName)
-        setPlayerSeat(_playerSeat)
-        setPlayerReady(true)
-    }
+    const [otherPlayers, setOtherPlayers] = useState()
+    const [playerReady, setPlayerReady] = useState()
 
     const getExistingPlayer = async () => {
         const existingOtherPlayers = await new Promise(resolve => {
@@ -35,13 +26,45 @@ function GamePage() {
                 resolve(data)
             })
         })
-        setOtherPlayers(existingOtherPlayers)
+        setOtherPlayers(() => existingOtherPlayers)
         console.log("received users data")
     }
 
+    const validatedLocalDetails = async () => {
+        return await new Promise(resolve => {
+            socket.on("valid_player_name_or_player_seat", () => {
+                console.log("valid player name and seat")
+                resolve(true)
+            })
+            socket.on("invalid_player_name", () => {
+                console.log("Invalid player name")
+                resolve(false)
+            })
+            socket.on("invalid_player_seat", () => {
+                console.log("Invalid player seat")
+                resolve(false)
+            })
+        })
+    }
+
+    // connecting to socket and fetch existing players.
     useEffect(() => {
-        setPlayerId(generateRandomID())
         socket.connect()
+        const localGameId = localStorage.getItem("gameId")
+        if (gameId == localGameId) {
+            socket.emit("join", {
+                "player_id": localStorage.getItem("playerId"),
+                "player_name": localStorage.getItem("playerName"),
+                "player_seat": parseInt(localStorage.getItem("playerSeat")),
+                "game_id": gameId
+            })
+            setPlayerReady(validatedLocalDetails())
+            setPlayerId(localStorage.getItem("playerId"))
+            setPlayerName(localStorage.getItem("playerName"))
+            setPlayerSeat(parseInt(localStorage.getItem("playerSeat")))
+        } else {
+            setPlayerId(generateRandomID())
+        }
 
         function onConnect() {
             socket.emit("get_users_details", { "game_id": gameId })
@@ -59,56 +82,41 @@ function GamePage() {
     useEffect(() => {
         socket.on("join", (newOtherPlayer) => {
             console.log("received join event")
-            const peerConnection = createPeerConnection(playerSeat, newOtherPlayer.socket_id, handleOtherPlayersReadyState)
-            const dataChannel = addDataChannel(peerConnection)
-            const updatedOtherPlayer = otherPlayers.map((otherPlayer, index) => (
+            const updatedOtherPlayer = (oldOtherPlayers) => oldOtherPlayers.map((otherPlayer, index) => (
                 index === newOtherPlayer.player_seat ? {
                     "player_name": newOtherPlayer.player_name,
-                    "socket_id": newOtherPlayer.socket_id,
-                    "peerConnection": peerConnection,
-                    "dataChannel": dataChannel
+                    "socket_id": newOtherPlayer.socket_id
                 } : { ...otherPlayer }
             ))
-            setOtherPlayers(updatedOtherPlayer)
-            if (playerReady) {
-                console.log("sending offer")
-                createOfferAndSend(playerSeat, newOtherPlayer.socket_id, peerConnection)
-            }
+            setOtherPlayers((oldOtherPlayer) => updatedOtherPlayer(oldOtherPlayer))
         })
-        if (playerReady) {
-            console.log("Emiting Join event")
-            socket.emit("join", { "player_id": playerId, "player_name": playerName, "player_seat": playerSeat, "game_id": gameId })
-        }
         return () => {
             socket.off("join")
         }
-    }, [playerReady])
+    }, [playerReady, otherPlayers])
 
-    useEffect(() => {
-        const updatedOtherPlayers = otherPlayers.map((player) => {
-            if (Object.keys(player).length !== 0) {
-                const peerConnection = createPeerConnection(playerSeat, player.socket_id, handleOtherPlayersReadyState)
-                const dataChannel = addDataChannel(peerConnection)
-                return { ...player, "peerConnection": peerConnection, "dataChannel": dataChannel }
-            }
-            return { ...player }
-        })
-        setOtherPlayers(updatedOtherPlayers)
-    }, [playerReady])
+    const handleSubmitRegistrationForm = (_playerName, _playerSeat) => {
+        setPlayerName(_playerName)
+        setPlayerSeat(_playerSeat)
+        setPlayerReady(true)
 
-    useEffect(() => {
-        socket.on("data", (data) => onDataSocketEvent(data, playerSeat, otherPlayers))
-        return () => { socket.off("data") }
-    }, [otherPlayers, playerReady])
+        localStorage.setItem("playerId", playerId)
+        localStorage.setItem("playerName", _playerName)
+        localStorage.setItem("playerSeat", _playerSeat)
+        localStorage.setItem("gameId", gameId)
+    }
+
+    const otherPlayersReady = otherPlayers?.reduce((accumulator, otherPlayer) => accumulator + (Object.keys(otherPlayer).length > 0 ? 1 : 0), 0)
 
     return (
         <div className="game-container">
-            {otherPlayersReady === 3 && <GameBoardComponent playerId={playerId} playerName={playerName} playerSeat={playerSeat} gameId={gameId} otherPlayers={otherPlayers}/>}
+            {otherPlayersReady === 4 && !playerReady && <h1>game room is full</h1>}
+            {(otherPlayersReady === 4 || otherPlayersReady === 3) && playerReady && <GameBoardComponent playerId={playerId} playerName={playerName} playerSeat={playerSeat} gameId={gameId} _otherPlayers={otherPlayers} />}
             {otherPlayersReady < 3 && playerReady && <CenteredSpinner text="Waiting For Other Players" />}
-            {otherPlayersReady < 3 && !playerReady && <RegistrationFormComponent handleSubmit={handleSubmitRegistrationForm} otherPlayers={otherPlayers} />}
+            {otherPlayersReady <= 3 && !playerReady && otherPlayers && <RegistrationFormComponent playerId={playerId} gameId={gameId} handleSubmit={handleSubmitRegistrationForm} otherPlayers={otherPlayers} />}
+            {otherPlayersReady <= 3 && !playerReady && !otherPlayers && <CenteredSpinner text="Fetching existing Players" />}
         </div>
     )
-
 }
 
 export default GamePage
