@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
-import { Container, Row, Col, AlertLink } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap'
 
 
 import { socket, onDataSocketEvent } from "../utils/socket"
 import { addDataChannel, createPeerConnection, createOfferAndSend, sendAll } from "../utils/peerconnection"
 import CenterSpinner from "./CenteredSpinner"
-import MySideBoard from "./MySideBoard";
-import SelectTrumpSuitComponent from "./SelectTrumpSuitComponent";
+import MySideBoard from "./MySideBoard"
+import SelectTrumpSuitComponent from "./SelectTrumpSuitComponent"
+import UserProfile from "./UserProfile"
 
 function convertFaceToInt(str) {
     try {
@@ -36,10 +37,17 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
     const [handWinsList, setHandWinsList] = useState([])
     const [incomingMessage, setIncomingMessage] = useState()
     const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
-    const [otherPlayersReady, setOtherPlayersReady] = useState(0)
+    const _otherPlayersReady = [false, false, false, false]
+    _otherPlayersReady[playerSeat] = true
+    const [otherPlayersReady, setOtherPlayersReady] = useState(_otherPlayersReady)
 
     const handleOtherPlayersReadyState = (connectionstate) => console.log("peerConnection state: ", connectionstate)
-    const handleOpenDataChannel = (incomingplayerSeat) => console.log("connection open of Data Channel for ", incomingplayerSeat);
+    const handleOpenDataChannel = (incomingPlayerSeat) => {
+        console.log("connection open of Data Channel for ", incomingPlayerSeat)
+        setOtherPlayersReady((oldOtherPlayerReady, index) =>
+            index === incomingPlayerSeat ? true : oldOtherPlayerReady
+        )
+    }
     const handleCloseDataChannel = (incomingplayerSeat) => console.log("connection close of Data Channel for ", incomingplayerSeat);
 
     function decideWiner() {
@@ -157,17 +165,16 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
         }
     }, [otherPlayers])
 
-    if (!cards) {
-        return <CenterSpinner text="Fetching Cards" />
+    if (!cards || otherPlayersReady < 3) {
+        return <CenterSpinner text="Loading..." />
     }
-
-    const _dataChannelReady = otherPlayers.reduce((accumulator, otherPlayer) =>
-        accumulator + (Object.keys(otherPlayer).length > 0 && otherPlayer?.dataChannel?.readyState === "open" ? 1 : 0), 0)
+    console.log(otherPlayers)
+    console.log(otherPlayers[(playerSeat + 2) % 4])
     return <>
         <Container>
-            <Row>
+            <Row >
                 <Col><h3>Team Scores</h3></Col>
-                <Col><h3>My Teammate</h3></Col>
+                <Col><UserProfile playerName={otherPlayers[(playerSeat + 2) % 4].player_name} playerSeat={(playerSeat + 2) % 4} turn={turn} /></Col>
                 <Col>
                     <div><h2>{trumpSuit ? trumpSuit : "waiting..."}</h2></div>
                     <div>
@@ -176,9 +183,9 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
                 </Col>
             </Row>
             <Row>
-                <Col><h3>Other Team player 1</h3></Col>
+                <Col><UserProfile playerName={otherPlayers[(playerSeat + 3) % 4].player_name} playerSeat={(playerSeat + 3) % 4} turn={turn} /></Col>
                 <Col xs={8}><h1>Game Board</h1></Col>
-                <Col><h3>Other Team player 2</h3></Col>
+                <Col><UserProfile playerName={otherPlayers[(playerSeat + 1) % 4].player_name} playerSeat={(playerSeat + 1) % 4} turn={turn} /></Col>
             </Row>
             <Row>
                 <Col><MySideBoard playerSeat={playerSeat} turn={turn} myCards={cards} handleMyTurn={handleMyTurn} /></Col>

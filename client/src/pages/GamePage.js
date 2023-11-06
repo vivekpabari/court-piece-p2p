@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 
-import { socket, onDataSocketEvent } from "../utils/socket";
+import { socket } from "../utils/socket";
 import { generateRandomID } from '../utils/common';
-import { createPeerConnection, createOfferAndSend, addDataChannel } from "../utils/peerconnection";
 import GameBoardComponent from "../components/GameBoardComponent";
 import RegistrationFormComponent from "../components/RegistrationFormComponent"
 import "../styles/gamePage.css";
@@ -51,7 +50,7 @@ function GamePage() {
     useEffect(() => {
         socket.connect()
         const localGameId = localStorage.getItem("gameId")
-        if (gameId == localGameId) {
+        if (gameId === localGameId) {
             socket.emit("join", {
                 "player_id": localStorage.getItem("playerId"),
                 "player_name": localStorage.getItem("playerName"),
