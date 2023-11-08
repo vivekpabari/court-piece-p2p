@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 
 import { socket } from "../utils/socket"

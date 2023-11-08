@@ -4,29 +4,13 @@ import { Container, Row, Col } from 'react-bootstrap'
 
 import { socket, onDataSocketEvent } from "../utils/socket"
 import { addDataChannel, createPeerConnection, createOfferAndSend, sendAll } from "../utils/peerconnection"
+import { decideWiner } from "../utils/logic"
 import CenterSpinner from "./CenteredSpinner"
 import MySideBoard from "./MySideBoard"
 import SelectTrumpSuitComponent from "./SelectTrumpSuitComponent"
 import UserProfile from "./UserProfile"
+import "../styles/GameBoardComponent.css"
 
-function convertFaceToInt(str) {
-    try {
-        return parseInt(str)
-    } catch (err) {
-        switch (str) {
-            case "T":
-                return 10
-            case "J":
-                return 11
-            case "Q":
-                return 12
-            case "K":
-                return 13
-            case "A":
-                return 14
-        }
-    }
-}
 
 function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPlayers }) {
     const [cards, setCards] = useState()
@@ -44,29 +28,11 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
     const handleOtherPlayersReadyState = (connectionstate) => console.log("peerConnection state: ", connectionstate)
     const handleOpenDataChannel = (incomingPlayerSeat) => {
         console.log("connection open of Data Channel for ", incomingPlayerSeat)
-        setOtherPlayersReady((oldOtherPlayerReady, index) =>
-            index === incomingPlayerSeat ? true : oldOtherPlayerReady
-        )
+        setOtherPlayersReady(incomingPlayerSeat)
     }
-    const handleCloseDataChannel = (incomingplayerSeat) => console.log("connection close of Data Channel for ", incomingplayerSeat);
-
-    function decideWiner() {
-        let winerPlayerSeat = handWinsList[-1]
-        let currentPlayerSeat = (winerPlayerSeat + 1) % 4
-        for (let i = 0; i < 3; i++) {
-            if (currentHand[winerPlayerSeat][1] === currentHand[currentHand][1]) {
-                if (convertFaceToInt(currentHand[currentHand][0]) > convertFaceToInt(currentHand[winerPlayerSeat][0])) {
-                    winerPlayerSeat = currentPlayerSeat
-                }
-            } else if (currentHand[currentHand][1] === trumpSuit) {
-                winerPlayerSeat = currentPlayerSeat
-            }
-            currentPlayerSeat = (currentPlayerSeat + 1) % 4
-        }
-        setTurn(winerPlayerSeat)
-        setHandWinsList((oldList) => [...oldList, winerPlayerSeat])
-        setCurrentHand(['', '', '', ''])
-        setHands((oldList) => [...oldList, currentHand])
+    const handleCloseDataChannel = (incomingPlayerSeat) => {
+        console.log("connection close of Data Channel for ", incomingPlayerSeat)
+        setOtherPlayersReady(incomingPlayerSeat)
     }
 
     function handleTurn(drawedCard, drawedCardPlayerSeat) {
@@ -76,15 +42,6 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
             newHand[drawedCardPlayerSeat] = drawedCard
             return newHand
         })
-        //check if all player have draw their cards
-        if (currentHand.every((cardValue) => !!cardValue)) {
-            //if yes then check winner & decide turn
-            decideWiner()
-        } else {
-            //no then decide turn according
-            console.log("updating turn")
-            setTurn(oldTurn => (oldTurn + 1) % 4)
-        }
     }
 
     const handleMyTurn = (Selectedcard) => {
@@ -153,6 +110,23 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
     }, [incomingMessage])
 
     useEffect(() => {
+        //check if all player have draw their cards
+        if (currentHand.every((cardValue) => !!cardValue)) {
+            //if yes then check winner & decide turn
+            const winerPlayerSeat = decideWiner(handWinsList[-1], currentHand, trumpSuit)
+            setTurn(winerPlayerSeat)
+            setHandWinsList((oldList) => [...oldList, winerPlayerSeat])
+            setCurrentHand(['', '', '', ''])
+            setHands((oldList) => [...oldList, currentHand])
+    
+        } else if (currentHand.some((cardValue) => !!cardValue)) {
+            //no then decide turn according
+            console.log("updating turn")
+            setTurn(oldTurn => (oldTurn + 1) % 4)
+        }
+    }, [currentHand])
+
+    useEffect(() => {
         if (otherPlayers.some(otherPlayer => otherPlayer.hasOwnProperty('peerConnection'))) {
             socket.on("data", (data) => onDataSocketEvent(data, playerSeat, otherPlayers))
             for (let i = playerSeat + 1; i < 4; i++) {
@@ -165,11 +139,12 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
         }
     }, [otherPlayers])
 
-    if (!cards || otherPlayersReady < 3) {
+    if (!cards || !otherPlayers.every(
+        otherPlayer => (Object.keys(otherPlayer).length > 0 ? otherPlayer?.dataChannel?.readyState === "open" : true)
+    )) {
         return <CenterSpinner text="Loading..." />
     }
-    console.log(otherPlayers)
-    console.log(otherPlayers[(playerSeat + 2) % 4])
+
     return <>
         <Container>
             <Row >
@@ -184,11 +159,19 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
             </Row>
             <Row>
                 <Col><UserProfile playerName={otherPlayers[(playerSeat + 3) % 4].player_name} playerSeat={(playerSeat + 3) % 4} turn={turn} /></Col>
-                <Col xs={8}><h1>Game Board</h1></Col>
+                <Col xs={8}>
+                    <div class="parent">
+                        <div className="div1"> test1</div>
+                        <div className="div2"> test2</div>
+                        <div className="div3"> test3</div>
+                        <div className="div4"> test4</div>
+                    </div>
+                </Col>
                 <Col><UserProfile playerName={otherPlayers[(playerSeat + 1) % 4].player_name} playerSeat={(playerSeat + 1) % 4} turn={turn} /></Col>
             </Row>
             <Row>
-                <Col><MySideBoard playerSeat={playerSeat} turn={turn} myCards={cards} handleMyTurn={handleMyTurn} /></Col>
+                <Col xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></Col>
+                <Col>{trumpSuit && <MySideBoard playerSeat={playerSeat} turn={turn} myCards={cards} handleMyTurn={handleMyTurn} />}</Col>
             </Row>
         </Container>
         {playerSeat === 0 && !trumpSuit && <SelectTrumpSuitComponent myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}

@@ -1,7 +1,6 @@
 import { Card } from 'react-bootstrap';
 
 function UserProfile({ playerName, playerSeat, turn }) {
-    console.log(playerName)
     return (
         <span>
             <Card
