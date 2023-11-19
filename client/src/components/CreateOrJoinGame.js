@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { generateRandomID } from '../utils/common'
 
 
-function CreateOrJoinGameComponent() {
+function CreateOrJoinGame() {
     const navigate = useNavigate()
 
     const [openModel, setOpenModel] = useState(false)
@@ -66,4 +66,4 @@ function CreateOrJoinGameComponent() {
     )
 }
 
-export default CreateOrJoinGameComponent
+export default CreateOrJoinGame

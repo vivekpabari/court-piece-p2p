@@ -3,7 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 
 import "../styles/SelectTrumpSuit.css"
 
-function SelectTrumpSuitComponent({ myFirstFivecards, handleSubmitSetTrumpSuit }) {
+function SelectTrumpSuit({ myFirstFivecards, handleSubmitSetTrumpSuit }) {
   const [show, setShow] = useState(true)
 
   const handleClose = () => setShow(false);
@@ -44,4 +44,4 @@ function SelectTrumpSuitComponent({ myFirstFivecards, handleSubmitSetTrumpSuit }
   </>
 }
 
-export default SelectTrumpSuitComponent
+export default SelectTrumpSuit

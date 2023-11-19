@@ -6,7 +6,7 @@ const CenteredSpinner = (props) => {
   return (
     <div className="centered-spinner">
       <Spinner animation="border" variant="light" />
-      <h4 className="text-light">{props.text}</h4>
+      <h4 style={{color: "white"}}>{props.text}</h4>
     </div>
   );
 };

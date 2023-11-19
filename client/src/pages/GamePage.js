@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 
 import { socket } from "../utils/socket";
 import { generateRandomID } from '../utils/common';
-import GameBoardComponent from "../components/GameBoardComponent";
-import RegistrationFormComponent from "../components/RegistrationFormComponent"
+import GameBoard from "../components/GameBoard";
+import RegistrationForm from "../components/RegistrationForm"
 import "../styles/gamePage.css";
 import CenteredSpinner from "../components/CenteredSpinner";
 
@@ -110,9 +110,9 @@ function GamePage() {
     return (
         <div className="game-container">
             {otherPlayersReady === 4 && !playerReady && <h1>game room is full</h1>}
-            {(otherPlayersReady === 4 || otherPlayersReady === 3) && playerReady && <GameBoardComponent playerId={playerId} playerName={playerName} playerSeat={playerSeat} gameId={gameId} _otherPlayers={otherPlayers} />}
+            {(otherPlayersReady === 4 || otherPlayersReady === 3) && playerReady && <GameBoard playerId={playerId} playerName={playerName} playerSeat={playerSeat} gameId={gameId} _otherPlayers={otherPlayers} />}
             {otherPlayersReady < 3 && playerReady && <CenteredSpinner text="Waiting For Other Players" />}
-            {otherPlayersReady <= 3 && !playerReady && otherPlayers && <RegistrationFormComponent playerId={playerId} gameId={gameId} handleSubmit={handleSubmitRegistrationForm} otherPlayers={otherPlayers} />}
+            {otherPlayersReady <= 3 && !playerReady && otherPlayers && <RegistrationForm playerId={playerId} gameId={gameId} handleSubmit={handleSubmitRegistrationForm} otherPlayers={otherPlayers} />}
             {otherPlayersReady <= 3 && !playerReady && !otherPlayers && <CenteredSpinner text="Fetching existing Players" />}
         </div>
     )

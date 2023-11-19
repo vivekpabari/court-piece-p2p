@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 
 import { socket } from "../utils/socket"
 
-function RegistrationFormComponent({ playerId, gameId, otherPlayers, handleSubmit }) {
+function RegistrationForm({ playerId, gameId, otherPlayers, handleSubmit }) {
     const playerNameRef = useRef(null)
     const playerSeatRef = useRef(null)
     const [errorPlayerName, setErrorPlayerName] = useState(false)
@@ -98,4 +98,4 @@ function RegistrationFormComponent({ playerId, gameId, otherPlayers, handleSubmi
     )
 }
 
-export default RegistrationFormComponent
+export default RegistrationForm

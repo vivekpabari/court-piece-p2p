@@ -1,0 +1,61 @@
+.parent {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.div1 {
+    grid-area: 1 / 2 / 3 / 3;
+    width: 20vh;
+    height: 20vh;
+}
+
+.div2 {
+    grid-area: 2 / 3 / 4 / 4;
+    width: 20vh;
+    height: 20vh;
+}
+
+.div3 {
+    width: 20vh;
+    height: 20vh;
+    grid-area: 3 / 2 / 5 / 3;
+}
+
+.div4 {
+    width: 20vh;
+    height: 20vh;
+    grid-area: 2 / 1 / 4 / 2;
+}
+
+
+
+.cards {
+    width: 17.5vh;
+}
+
+.cardFront,
+.cardBack {
+    transition: transform 0.5s ease;
+    position: absolute;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.cardBack {
+    transform: perspective(1000px) rotateY(180deg);
+}
+
+.cardBack.flipped {
+    transform: perspective(1000px) rotateY(0deg);
+}
+
+.cardFront {
+    transform: perspective(1000px) rotateY(0deg);
+}
+
+.cardFront.flipped {
+    transform: perspective(1000px) rotateY(-180deg);
+}

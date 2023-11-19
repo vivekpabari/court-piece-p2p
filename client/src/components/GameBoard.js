@@ -6,24 +6,23 @@ import { socket, onDataSocketEvent } from "../utils/socket"
 import { addDataChannel, createPeerConnection, createOfferAndSend, sendAll } from "../utils/peerconnection"
 import { decideWiner } from "../utils/logic"
 import CenterSpinner from "./CenteredSpinner"
-import MySideBoard from "./MySideBoard"
-import SelectTrumpSuitComponent from "./SelectTrumpSuitComponent"
-import UserProfile from "./UserProfile"
-import "../styles/GameBoardComponent.css"
+import SelectTrumpSuit from "./SelectTrumpSuit"
+import MiddleSideGameBoard from "./MiddleSideGameBoard"
+import UpperSideGameBoard from "./UpperSideGameBoard"
+import LowerSideGameBoard from "./LowerSideGameBoard"
+import WinDisplayModal from "./WinDisplayModal"
 
 
-function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPlayers }) {
+function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) {
     const [cards, setCards] = useState()
     const [trumpSuit, setTrumpSuit] = useState()
     const [hands, setHands] = useState([])
     const [currentHand, setCurrentHand] = useState(['', '', '', ''])
     const [turn, setTurn] = useState(0)
-    const [handWinsList, setHandWinsList] = useState([])
+    const [handWinsList, setHandWinsList] = useState([0, 0, 0, 0, 0, 0])
     const [incomingMessage, setIncomingMessage] = useState()
     const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
-    const _otherPlayersReady = [false, false, false, false]
-    _otherPlayersReady[playerSeat] = true
-    const [otherPlayersReady, setOtherPlayersReady] = useState(_otherPlayersReady)
+    const [otherPlayersReady, setOtherPlayersReady] = useState()
 
     const handleOtherPlayersReadyState = (connectionstate) => console.log("peerConnection state: ", connectionstate)
     const handleOpenDataChannel = (incomingPlayerSeat) => {
@@ -113,12 +112,13 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
         //check if all player have draw their cards
         if (currentHand.every((cardValue) => !!cardValue)) {
             //if yes then check winner & decide turn
-            const winerPlayerSeat = decideWiner(handWinsList[-1], currentHand, trumpSuit)
-            setTurn(winerPlayerSeat)
-            setHandWinsList((oldList) => [...oldList, winerPlayerSeat])
-            setCurrentHand(['', '', '', ''])
-            setHands((oldList) => [...oldList, currentHand])
-    
+            setTimeout(() => {
+                const winerPlayerSeat = decideWiner(handWinsList[-1], currentHand, trumpSuit)
+                setTurn(winerPlayerSeat)
+                setHandWinsList((oldList) => [...oldList, winerPlayerSeat])
+                setCurrentHand(['', '', '', ''])
+                setHands((oldList) => [...oldList, currentHand])
+            }, 3000)
         } else if (currentHand.some((cardValue) => !!cardValue)) {
             //no then decide turn according
             console.log("updating turn")
@@ -145,37 +145,29 @@ function GameBoardComponent({ playerId, playerName, playerSeat, gameId, _otherPl
         return <CenterSpinner text="Loading..." />
     }
 
+    let teamRedScore = 0, teamBlackScore = 0
+    handWinsList.forEach(element => {
+        if (element % 2 === 0) {
+            teamRedScore += 1
+        } else {
+            teamBlackScore += 1
+        }
+    });
     return <>
+        {(teamRedScore >= 7 || teamBlackScore >= 7) && <WinDisplayModal teamBlackScore={teamBlackScore} teamRedScore={teamRedScore} otherPlayers={otherPlayers} playerSeat={playerSeat} />}
         <Container>
             <Row >
-                <Col><h3>Team Scores</h3></Col>
-                <Col><UserProfile playerName={otherPlayers[(playerSeat + 2) % 4].player_name} playerSeat={(playerSeat + 2) % 4} turn={turn} /></Col>
-                <Col>
-                    <div><h2>{trumpSuit ? trumpSuit : "waiting..."}</h2></div>
-                    <div>
-                        <strong>TRUMP SUIT</strong>
-                    </div>
-                </Col>
+                <UpperSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} trumpSuit={trumpSuit} teamRedScore={teamRedScore} teamBlackScore={teamBlackScore} />
             </Row>
             <Row>
-                <Col><UserProfile playerName={otherPlayers[(playerSeat + 3) % 4].player_name} playerSeat={(playerSeat + 3) % 4} turn={turn} /></Col>
-                <Col xs={8}>
-                    <div class="parent">
-                        <div className="div1"> test1</div>
-                        <div className="div2"> test2</div>
-                        <div className="div3"> test3</div>
-                        <div className="div4"> test4</div>
-                    </div>
-                </Col>
-                <Col><UserProfile playerName={otherPlayers[(playerSeat + 1) % 4].player_name} playerSeat={(playerSeat + 1) % 4} turn={turn} /></Col>
+                <MiddleSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} currentHand={currentHand} />
             </Row>
             <Row>
-                <Col xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></Col>
-                <Col>{trumpSuit && <MySideBoard playerSeat={playerSeat} turn={turn} myCards={cards} handleMyTurn={handleMyTurn} />}</Col>
+                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} />
             </Row>
         </Container>
-        {playerSeat === 0 && !trumpSuit && <SelectTrumpSuitComponent myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}
+        {playerSeat === 0 && !trumpSuit && <SelectTrumpSuit myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}
     </>;
 }
 
-export default GameBoardComponent
+export default GameBoard
