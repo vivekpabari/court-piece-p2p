@@ -28,6 +28,8 @@ jobs:
           npm i
           npm run build
         working-directory: client
+        env:
+          CI: false
 
       # deploy the react app to github pages
       - name: Deploy
