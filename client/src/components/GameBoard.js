@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Row } from 'react-bootstrap'
 
 
 import { socket, onDataSocketEvent } from "../utils/socket"
@@ -19,7 +19,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     const [hands, setHands] = useState([])
     const [currentHand, setCurrentHand] = useState(['', '', '', ''])
     const [turn, setTurn] = useState(0)
-    const [handWinsList, setHandWinsList] = useState([0, 0, 0, 0, 0, 0])
+    const [handWinsList, setHandWinsList] = useState([])
     const [incomingMessage, setIncomingMessage] = useState()
     const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
     const [otherPlayersReady, setOtherPlayersReady] = useState()
