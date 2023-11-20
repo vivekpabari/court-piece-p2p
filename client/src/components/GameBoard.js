@@ -76,7 +76,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     const handleIncomingMessage = (message, incomingplayerSeat) => {
         console.log("Message Received through data channel")
         setIncomingMessage({ data: message, sender: incomingplayerSeat })
-    };
+    }
 
     useEffect(() => {
         socket.emit("get_cards", { "player_name": playerName, "player_id": playerId, "player_seat": playerSeat, "game_id": gameId })
@@ -140,7 +140,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     }, [otherPlayers])
 
     if (!cards || !otherPlayers.every(
-        otherPlayer => (Object.keys(otherPlayer).length > 0 ? otherPlayer?.dataChannel?.readyState === "open" : true)
+        (otherPlayer, index) => (Object.keys(otherPlayer).length > 0 && index !== playerSeat ? otherPlayer?.dataChannel?.readyState === "open" : true)
     )) {
         return <CenterSpinner text="Loading..." />
     }
@@ -152,7 +152,8 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
         } else {
             teamBlackScore += 1
         }
-    });
+    })
+
     return <>
         {(teamRedScore >= 7 || teamBlackScore >= 7) && <WinDisplayModal teamBlackScore={teamBlackScore} teamRedScore={teamRedScore} otherPlayers={otherPlayers} playerSeat={playerSeat} />}
         <Container>
@@ -167,7 +168,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
             </Row>
         </Container>
         {playerSeat === 0 && !trumpSuit && <SelectTrumpSuit myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}
-    </>;
+    </>
 }
 
 export default GameBoard
