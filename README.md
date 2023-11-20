@@ -16,3 +16,7 @@ source ./env/bin/activate
 ```
 pip install -r requirements.txt
 ```
+- Run Flask server
+```
+gunicorn --worker-class eventlet -w 1 server:app
+```
