@@ -30,3 +30,24 @@ export function decideWiner(lastHandWinner, currentHand, trumpSuit) {
     }
     return winerPlayerSeat
 }
+
+// D C H S Sequence of suit
+export function sortCards(cards) {
+    for (let i = 0; i < cards.length - 1; i++) {
+        let isSwap = false
+        for (let j = i + 1; j < cards.length; j++) {
+            if ((cards[i][1] === cards[j][1] && convertFaceToInt(cards[i][0]) > convertFaceToInt(cards[j][0]))
+                || (cards[i][1] !== cards[j][1] && (cards[i][1] === "S"
+                    || (cards[i][1] === "H" && (cards[j][1] === "C" || cards[j][1] === "D"))
+                    || (cards[i][1] === "C" && cards[j][1] === "D")))
+            ) {
+                [cards[i], cards[j]] = [cards[j], cards[i]]
+                isSwap = true
+            }
+        }
+        if (!isSwap) {
+            break
+        }
+    }
+    return cards
+}
