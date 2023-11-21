@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 
 
-import { socket } from "../utils/socket";
-import { generateRandomID } from '../utils/common';
-import GameBoard from "../components/GameBoard";
+import { socket } from "../utils/socket"
+import { generateRandomID } from '../utils/common'
+import GameBoard from "../components/GameBoard"
 import RegistrationForm from "../components/RegistrationForm"
-import "../styles/gamePage.css";
-import CenteredSpinner from "../components/CenteredSpinner";
+import "../styles/gamePage.css"
+import CenteredSpinner from "../components/CenteredSpinner"
 
 
 function GamePage() {
@@ -15,7 +15,7 @@ function GamePage() {
 
     const [playerName, setPlayerName] = useState()
     const [playerId, setPlayerId] = useState()
-    const [playerSeat, setPlayerSeat] = useState(0)
+    const [playerSeat, setPlayerSeat] = useState()
     const [otherPlayers, setOtherPlayers] = useState()
     const [playerReady, setPlayerReady] = useState()
 
@@ -73,8 +73,8 @@ function GamePage() {
         getExistingPlayer()
 
         return () => {
-            socket.off('connect', onConnect);
-        };
+            socket.off('connect', onConnect)
+        }
 
     }, [])
 
@@ -105,7 +105,7 @@ function GamePage() {
         localStorage.setItem("gameId", gameId)
     }
 
-    const otherPlayersReady = otherPlayers?.reduce((accumulator, otherPlayer) => accumulator + (Object.keys(otherPlayer).length > 0 ? 1 : 0), 0)
+    const otherPlayersReady = otherPlayers?.reduce((accumulator, otherPlayer, index) => accumulator + ((Object.keys(otherPlayer).length > 0 && index !== playerSeat) ? 1 : 0), 0)
 
     return (
         <div className="game-container">
