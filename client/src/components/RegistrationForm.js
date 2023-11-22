@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { useRef, useState } from "react"
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap'
 
 import { socket } from "../utils/socket"
 
@@ -8,7 +8,7 @@ function RegistrationForm({ playerId, gameId, otherPlayers, handleSubmit }) {
     const playerSeatRef = useRef(null)
     const [errorPlayerName, setErrorPlayerName] = useState(false)
     const [errorPlayerSeat, setErrorPlayerSeat] = useState(false)
-    const [validated, setValidated] = useState(false);
+    const [validated, setValidated] = useState(false)
 
     const validatedFormData = (_playerName, _playerSeat) => {
         return new Promise(resolve => {
@@ -55,16 +55,14 @@ function RegistrationForm({ playerId, gameId, otherPlayers, handleSubmit }) {
                     </>
                 ) : (<option value="1">No options</option>)
         } else if (Object.keys(otherPlayers[2]).length === 0) {
-
             options = Object.keys(otherPlayers[3]).length === 0 ? (
                 <>
                     <option value="2">{otherPlayers[0].player_name}</option>
                     <option value="3">{otherPlayers[1].player_name}</option>
                 </>
             ) : (<option value="2">No options</option>)
-
         } else {
-            options = <option value="3">No options</option>
+            options = <option value="3">{otherPlayers[1].player_name}</option>
         }
         return options
     }
