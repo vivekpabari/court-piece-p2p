@@ -164,7 +164,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
                 <MiddleSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} currentHand={currentHand} />
             </Row>
             <Row>
-                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} />
+                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} currentHand={currentHand}/>
             </Row>
         </Container>
         {playerSeat === 0 && !trumpSuit && <SelectTrumpSuit myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}

@@ -5,13 +5,21 @@ import UserProfile from "./UserProfile"
 import { sortCards } from "../utils/logic"
 import "../styles/LowerSideGameBoard.css"
 
-function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards, trumpSuit }) {
-    const [myCurrentCards, setMyCurrentCards] = useState(sortCards(cards))
+function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards, trumpSuit, currentHand }) {
+    const [myCurrentCards, setMyCurrentCards] = useState(() => {
+        console.log("updating cards")
+        const updatedCards = sortCards(cards)
+        return updatedCards
+    })
 
-    const cardClick = (Selectedcard) => {
-        if (playerSeat === turn) {
-            setMyCurrentCards((cards) => cards.filter((card) => card !== Selectedcard))
-            handleMyTurn(Selectedcard)
+    const currentHandFirstCard = currentHand.find((card, index) => card !== "" && currentHand.at((index - 1) % 4) === "")
+    const currentHandSuit = currentHandFirstCard ? currentHandFirstCard[1] : null
+    const allowSuitsForCardDraw = myCurrentCards.find((card) => card[1] === currentHandSuit) ? [currentHandSuit] : ['D', 'C', 'H', 'S']
+
+    const cardClick = (selectedCard) => {
+        if (playerSeat === turn && allowSuitsForCardDraw.includes(selectedCard[1])) {
+            setMyCurrentCards((cards) => cards.filter((card) => card !== selectedCard))
+            handleMyTurn(selectedCard)
         }
     }
 
@@ -20,14 +28,13 @@ function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards,
             <span className="cardList">
                 <img src={process.env.PUBLIC_URL + "/cards/" + card + ".svg"} onClick={() => cardClick(card)} />
             </span>
-
         ))
     }
 
     return (
         <>
             <Col xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></Col>
-            <Col>{trumpSuit && GetCards()}</Col>
+            <Col>{(playerSeat !== 0 || trumpSuit) && GetCards()}</Col>
         </>
     )
 }
