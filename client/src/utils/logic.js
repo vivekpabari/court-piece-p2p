@@ -15,20 +15,20 @@ function convertFaceToInt(str) {
     }
 }
 
-export function decideWiner(lastHandWinner, currentHand, trumpSuit) {
-    let winerPlayerSeat = lastHandWinner || 0
-    let currentPlayerSeat = (winerPlayerSeat + 1) % 4
+export function decideWinner(lastHandWinner, currentHand, trumpSuit) {
+    let winnerPlayerSeat = lastHandWinner || 0
+    let currentPlayerSeat = (winnerPlayerSeat + 1) % 4
     for (let i = 0; i < 3; i++) {
-        if (currentHand[winerPlayerSeat][1] === currentHand[currentPlayerSeat][1]) {
-            if (convertFaceToInt(currentHand[currentPlayerSeat][0]) > convertFaceToInt(currentHand[winerPlayerSeat][0])) {
-                winerPlayerSeat = currentPlayerSeat
+        if (currentHand[winnerPlayerSeat][1] === currentHand[currentPlayerSeat][1]) {
+            if (convertFaceToInt(currentHand[currentPlayerSeat][0]) > convertFaceToInt(currentHand[winnerPlayerSeat][0])) {
+                winnerPlayerSeat = currentPlayerSeat
             }
         } else if (currentHand[currentPlayerSeat][1] === trumpSuit) {
-            winerPlayerSeat = currentPlayerSeat
+            winnerPlayerSeat = currentPlayerSeat
         }
         currentPlayerSeat = (currentPlayerSeat + 1) % 4
     }
-    return winerPlayerSeat
+    return winnerPlayerSeat
 }
 
 // D C H S Sequence of suit
