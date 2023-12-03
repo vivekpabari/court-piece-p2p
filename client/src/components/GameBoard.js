@@ -4,7 +4,7 @@ import { Container, Row } from 'react-bootstrap'
 
 import { socket, onDataSocketEvent } from "../utils/socket"
 import { addDataChannel, createPeerConnection, createOfferAndSend, sendAll } from "../utils/peerconnection"
-import { decideWiner } from "../utils/logic"
+import { decideWinner } from "../utils/logic"
 import CenterSpinner from "./CenteredSpinner"
 import SelectTrumpSuit from "./SelectTrumpSuit"
 import MiddleSideGameBoard from "./MiddleSideGameBoard"
@@ -113,9 +113,9 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
         if (currentHand.every((cardValue) => !!cardValue)) {
             //if yes then check winner & decide turn
             setTimeout(() => {
-                const winerPlayerSeat = decideWiner(handWinsList[-1], currentHand, trumpSuit)
-                setTurn(winerPlayerSeat)
-                setHandWinsList((oldList) => [...oldList, winerPlayerSeat])
+                const winnerPlayerSeat = decideWinner(handWinsList[-1], currentHand, trumpSuit)
+                setTurn(winnerPlayerSeat)
+                setHandWinsList((oldList) => [...oldList, winnerPlayerSeat])
                 setCurrentHand(['', '', '', ''])
                 setHands((oldList) => [...oldList, currentHand])
             }, 3000)

@@ -52,6 +52,11 @@ def join(message):
     player_seat = int(message["player_seat"])
     game_id = message["game_id"]
     if game_id in game_room_details:
+        # checking for duplicate player seat
+        if len(game_room_details[game_id][player_seat].keys()) > 0 and game_room_details[game_id][player_seat].get("player_id") != player_id:
+            emit("invalid_player_seat", to=request.sid)
+            return
+
         # checking for duplicate player name
         if any(
             [
@@ -64,23 +69,12 @@ def join(message):
             emit("invalid_player_name", to=request.sid)
             return
 
-        # checking for duplicate player seat
-        if any(
-            [
-                player_seat == existing_player.get("player_seat")
-                and player_id != existing_player.get("player_id")
-                for existing_player in game_room_details[game_id]
-            ]
-        ):
-            emit("invalid_player_seat", to=request.sid)
-            return
-
         game_room_details[game_id][player_seat] = {
             "player_id": player_id,
             "player_name": player_name,
             "socket_id": request.sid,
         }
-        emit("valid_player_name_or_player_seat", to=request.sid)
+        emit("valid_player_name_and_player_seat", to=request.sid)
     else:  # for player0
         game_room_details[game_id] = [{}, {}, {}, {}]
         game_room_details[game_id][player_seat] = {
@@ -101,7 +95,7 @@ def join(message):
         to=game_id,
         skip_sid=request.sid,
     )
-    emit("valid_player_name_or_player_seat", to=request.sid)
+    emit("valid_player_name_and_player_seat", to=request.sid)
 
 
 @socketio.on("data")

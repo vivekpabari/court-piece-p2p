@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 
 
 import { socket } from "../utils/socket"
-import { generateRandomID } from '../utils/common'
+import { generateRandomID, validatedPlayerDetails } from '../utils/common'
 import GameBoard from "../components/GameBoard"
 import RegistrationForm from "../components/RegistrationForm"
 import "../styles/gamePage.css"
@@ -19,48 +19,22 @@ function GamePage() {
     const [otherPlayers, setOtherPlayers] = useState()
     const [playerReady, setPlayerReady] = useState()
 
-    const getExistingPlayer = async () => {
-        const existingOtherPlayers = await new Promise(resolve => {
-            socket.on("get_users_details", (data) => {
-                resolve(data)
-            })
-        })
-        setOtherPlayers(() => existingOtherPlayers)
-        console.log("received users data")
-    }
-
-    const validatedLocalDetails = async () => {
-        return await new Promise(resolve => {
-            socket.on("valid_player_name_or_player_seat", () => {
-                console.log("valid player name and seat")
-                resolve(true)
-            })
-            socket.on("invalid_player_name", () => {
-                console.log("Invalid player name")
-                resolve(false)
-            })
-            socket.on("invalid_player_seat", () => {
-                console.log("Invalid player seat")
-                resolve(false)
-            })
-        })
-    }
-
     // connecting to socket and fetch existing players.
     useEffect(() => {
         socket.connect()
-        const localGameId = localStorage.getItem("gameId")
-        if (gameId === localGameId) {
-            socket.emit("join", {
-                "player_id": localStorage.getItem("playerId"),
-                "player_name": localStorage.getItem("playerName"),
-                "player_seat": parseInt(localStorage.getItem("playerSeat")),
-                "game_id": gameId
-            })
-            setPlayerReady(validatedLocalDetails())
-            setPlayerId(localStorage.getItem("playerId"))
-            setPlayerName(localStorage.getItem("playerName"))
-            setPlayerSeat(parseInt(localStorage.getItem("playerSeat")))
+        if (gameId === localStorage.getItem("gameId")) {
+            const validatedLocalStoragePlayerDetails = async () => {
+                const isValid = await validatedPlayerDetails(localStorage.getItem("playerId"), localStorage.getItem("playerName"), localStorage.getItem("playerSeat"), localStorage.getItem("gameId"))
+                if (isValid === "valid_player_name_and_player_seat") {
+                    setPlayerReady(true)
+                    setPlayerId(localStorage.getItem("playerId"))
+                    setPlayerName(localStorage.getItem("playerName"))
+                    setPlayerSeat(parseInt(localStorage.getItem("playerSeat")))
+                } else {
+                    setPlayerId(generateRandomID())
+                }
+            }
+            validatedLocalStoragePlayerDetails()
         } else {
             setPlayerId(generateRandomID())
         }
@@ -70,10 +44,13 @@ function GamePage() {
         }
         socket.on('connect', onConnect)
 
-        getExistingPlayer()
+        socket.on("get_users_details", (data) => {
+            setOtherPlayers(() => data)
+        })
 
         return () => {
             socket.off('connect', onConnect)
+            socket.off('get_users_details')
         }
 
     }, [])
