@@ -3,7 +3,7 @@ import { Container, Row } from 'react-bootstrap'
 
 
 import { socket, onDataSocketEvent } from "../utils/socket"
-import { addDataChannel, createPeerConnection, createOfferAndSend, sendAll } from "../utils/peerconnection"
+import { addDataChannel, createPeerConnection, sendAll } from "../utils/peerconnection"
 import { decideWinner } from "../utils/logic"
 import CenterSpinner from "./CenteredSpinner"
 import SelectTrumpSuit from "./SelectTrumpSuit"
@@ -24,7 +24,9 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     const [otherPlayers, setOtherPlayers] = useState([{}, {}, {}, {}])
     const [otherPlayersReady, setOtherPlayersReady] = useState()
 
-    const handleOtherPlayersReadyState = (connectionstate) => console.log("peerConnection state: ", connectionstate)
+    const handleOtherPlayersReadyState = (connectionstate, otherPlayerSeat) => {
+        console.log("peerConnection state: ", connectionstate, "for seat: ", otherPlayerSeat)
+    }
     const handleOpenDataChannel = (incomingPlayerSeat) => {
         console.log("connection open of Data Channel for ", incomingPlayerSeat)
         setOtherPlayersReady(incomingPlayerSeat)
@@ -87,7 +89,9 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
         console.log("Create or Updating Connection")
         const updatedOtherPlayers = (oldOtherPlayers) => oldOtherPlayers.map((player, index) => {
             if (index !== playerSeat && player?.socket_id !== _otherPlayers[index].socket_id) {
-                const peerConnection = createPeerConnection(playerSeat, _otherPlayers[index].socket_id, handleOtherPlayersReadyState)
+                console.log("new socket ID:", _otherPlayers[index].socket_id, "for index:", index)
+                player?.peerConnection?.close()
+                const peerConnection = createPeerConnection(playerSeat, index, _otherPlayers[index].socket_id, handleOtherPlayersReadyState)
                 const dataChannel = addDataChannel("mainChannel", index, peerConnection, handleIncomingMessage, handleOpenDataChannel, handleCloseDataChannel)
                 return { ..._otherPlayers[index], "peerConnection": peerConnection, "dataChannel": dataChannel }
             }
@@ -127,21 +131,11 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     }, [currentHand])
 
     useEffect(() => {
-        if (otherPlayers.some(otherPlayer => otherPlayer.hasOwnProperty('peerConnection'))) {
-            socket.on("data", (data) => onDataSocketEvent(data, playerSeat, otherPlayers))
-            for (let i = playerSeat + 1; i < 4; i++) {
-                if (otherPlayers[i].peerConnection.connectionState !== "connected") {
-                    console.log("sending offer for ", i)
-                    createOfferAndSend(playerSeat, otherPlayers[i].socket_id, otherPlayers[i].peerConnection)
-                }
-            }
-            return () => { socket.off("data") }
-        }
+        socket.on("data", (data) => onDataSocketEvent(data, playerSeat, otherPlayers))
+        return () => { socket.off("data") }
     }, [otherPlayers])
 
-    if (!cards || !otherPlayers.every(
-        (otherPlayer, index) => (Object.keys(otherPlayer).length > 0 && index !== playerSeat ? otherPlayer?.dataChannel?.readyState === "open" : true)
-    )) {
+    if (!cards || !otherPlayers.every((otherPlayer, index) => index === playerSeat || otherPlayer?.dataChannel?.readyState === "open")) {
         return <CenterSpinner text="Loading..." />
     }
 
@@ -164,7 +158,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
                 <MiddleSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} currentHand={currentHand} />
             </Row>
             <Row>
-                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} currentHand={currentHand}/>
+                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} currentHand={currentHand} />
             </Row>
         </Container>
         {playerSeat === 0 && !trumpSuit && <SelectTrumpSuit myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}

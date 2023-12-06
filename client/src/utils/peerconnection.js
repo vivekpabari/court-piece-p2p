@@ -1,37 +1,54 @@
 import { socket } from "./socket"
 
-let onIceCandidate = (event, sender_seat, receiver_socket_id) => {
+export let makingOfferList = [false, false, false, false]
+
+const onIceCandidate = (event, sender_seat, receiver_socket_id) => {
     console.log("sending candidate")
     if (event.candidate) {
         const data = {
             "type": "candidate",
-            'candidate': event.candidate
+            "candidate": event.candidate
         }
-        socket.emit("data", { "sender_seat": sender_seat, "data": data, "to": receiver_socket_id });
+        socket.emit("data", { "sender_seat": sender_seat, "data": data, "to": receiver_socket_id })
     }
 }
 
-export function createPeerConnection(sender_seat, receiver_socket_id, handleOtherPlayersReadyState) {
+export function createPeerConnection(sender_seat, receiverPlayerSeat, receiverSocketId, handleOtherPlayersReadyState) {
     // list of stun & turn servers
     const configuration = {
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    };
-    const peerConnection = new RTCPeerConnection(configuration);
-    peerConnection.onicecandidate = (event) => onIceCandidate(event, sender_seat, receiver_socket_id);
-    peerConnection.addEventListener('connectionstatechange', event => {
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun2.l.google.com:19302" }
+        ],
+    }
+    const peerConnection = new RTCPeerConnection(configuration)
+    peerConnection.onicecandidate = (event) => onIceCandidate(event, sender_seat, receiverSocketId)
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log(peerConnection.iceConnectionState, receiverPlayerSeat)
+        if (peerConnection.iceConnectionState === "failed") {
+            console.log("restarting ICE")
+            peerConnection.restartIce()
+        }
+    }
+    peerConnection.onconnectionstatechange = event => {
         console.log(peerConnection.connectionState)
-        handleOtherPlayersReadyState(peerConnection.connectionState)
-    });
-    return peerConnection;
+        handleOtherPlayersReadyState(peerConnection.connectionState, receiverPlayerSeat)
+    }
+    peerConnection.onnegotiationneeded = () => createOfferAndSend(sender_seat, receiverPlayerSeat, receiverSocketId, peerConnection)
+    return peerConnection
 }
 
-export async function createOfferAndSend(sender_seat, receiver_socket_id, peerConnection) {
+async function createOfferAndSend(sender_seat, receiverPlayerSeat, receiverSocketId, peerConnection) {
     try {
-        const localOffer = await peerConnection.createOffer()
-        await peerConnection.setLocalDescription(localOffer)
-        socket.emit("data", { "sender_seat": sender_seat, "data": localOffer, "to": receiver_socket_id });
+        console.log("Creating offer and sending to: ", receiverPlayerSeat)
+        makingOfferList[receiverPlayerSeat] = true
+        await peerConnection.setLocalDescription()
+        socket.emit("data", { "sender_seat": sender_seat, "data": peerConnection.localDescription, "to": receiverSocketId })
     } catch (err) {
-        console.log("error while sending offer")
+        console.log("error while sending offer: ", err)
+    } finally {
+        makingOfferList[receiverPlayerSeat] = false
     }
 }
 
@@ -39,13 +56,13 @@ export function addDataChannel(dataChannelName, incomingplayerSeat, peerConnecti
     const dataChannelConfigurations = {
         orderer: true,
     }
-    const dataChannel = peerConnection.createDataChannel(dataChannelName, dataChannelConfigurations);
+    const dataChannel = peerConnection.createDataChannel(dataChannelName, dataChannelConfigurations)
     peerConnection.ondatachannel = (ev) => {
         const receiveChannel = ev.channel
         receiveChannel.onmessage = (event) => handleIncomingMessage(event.data, incomingplayerSeat)
         receiveChannel.onopen = () => handleOpenDataChannel(incomingplayerSeat)
         receiveChannel.onclose = () => handleCloseDataChannel(incomingplayerSeat)
-    };
+    }
     return dataChannel
 }
 
@@ -55,5 +72,5 @@ export function sendAll(otherPlayers, payload) {
         if ("dataChannel" in otherPlayer) {
             otherPlayer.dataChannel.send(JSON.stringify(payload))
         }
-    });
+    })
 }
