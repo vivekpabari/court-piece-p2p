@@ -5,6 +5,7 @@ import { Container, Row } from 'react-bootstrap'
 import { socket, onDataSocketEvent } from "../utils/socket"
 import { addDataChannel, createPeerConnection, sendAll } from "../utils/peerconnection"
 import { decideWinner } from "../utils/logic"
+import { generateRandomID } from "../utils/common"
 import CenterSpinner from "./CenteredSpinner"
 import SelectTrumpSuit from "./SelectTrumpSuit"
 import MiddleSideGameBoard from "./MiddleSideGameBoard"
@@ -29,11 +30,11 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     }
     const handleOpenDataChannel = (incomingPlayerSeat) => {
         console.log("connection open of Data Channel for ", incomingPlayerSeat)
-        setOtherPlayersReady(incomingPlayerSeat)
+        setOtherPlayersReady(generateRandomID())
     }
     const handleCloseDataChannel = (incomingPlayerSeat) => {
         console.log("connection close of Data Channel for ", incomingPlayerSeat)
-        setOtherPlayersReady(incomingPlayerSeat)
+        setOtherPlayersReady(generateRandomID())
     }
 
     function handleTurn(drawedCard, drawedCardPlayerSeat) {

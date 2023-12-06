@@ -45,6 +45,7 @@ function GamePage() {
         socket.on('connect', onConnect)
 
         socket.on("get_users_details", (data) => {
+            console.log("Get Users Details")
             setOtherPlayers(() => data.map(ele => (ele?.player_name ? { ...ele, "polite": true } : ele)))
         })
 
