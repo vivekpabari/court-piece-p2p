@@ -102,9 +102,10 @@ def join(message):
 def transfer_data(message):
     payload = {
         "data": message["data"],
-        "sender_seat": message["sender_seat"]
+        "sender_seat": message["sender_seat"],
+        "sender_socket_id": request.sid
     }
-    emit("data", payload, to=message["to"], skip_sid=request.sid)
+    emit("data", payload, to=message["to"])
 
 
 @socketio.on_error_default

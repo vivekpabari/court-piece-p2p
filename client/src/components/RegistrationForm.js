@@ -10,7 +10,6 @@ function RegistrationForm({ playerId, gameId, otherPlayers, handleSubmit }) {
     const playerSeatRef = useRef(null)
     const [errorPlayerName, setErrorPlayerName] = useState(false)
     const [errorPlayerSeat, setErrorPlayerSeat] = useState(false)
-    const [validated, setValidated] = useState(false)
 
     const handleSubmitPlayerDetails = async (event) => {
         console.log("Form submitted")
@@ -18,14 +17,12 @@ function RegistrationForm({ playerId, gameId, otherPlayers, handleSubmit }) {
         const isValid = await validatedPlayerDetails(playerId, playerNameRef.current.value, playerSeatRef.current.value, gameId)
         if (isValid === "valid_player_name_and_player_seat") {
             handleSubmit(playerNameRef.current.value, parseInt(playerSeatRef.current.value))
-            setValidated(true)
         } else {
             if (isValid === "invalid_player_name") {
                 setErrorPlayerName(true)
             } else {
                 setErrorPlayerSeat(true)
             }
-            setValidated(false)
             socket.emit("get_users_details", { "game_id": gameId })
         }
     }

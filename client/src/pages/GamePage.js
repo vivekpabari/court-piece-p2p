@@ -45,7 +45,7 @@ function GamePage() {
         socket.on('connect', onConnect)
 
         socket.on("get_users_details", (data) => {
-            setOtherPlayers(() => data)
+            setOtherPlayers(() => data.map(ele => (ele?.player_name ? { ...ele, "polite": true } : ele)))
         })
 
         return () => {
@@ -61,7 +61,8 @@ function GamePage() {
             const updatedOtherPlayer = (oldOtherPlayers) => oldOtherPlayers.map((otherPlayer, index) => (
                 index === newOtherPlayer.player_seat ? {
                     "player_name": newOtherPlayer.player_name,
-                    "socket_id": newOtherPlayer.socket_id
+                    "socket_id": newOtherPlayer.socket_id,
+                    "polite": false,
                 } : { ...otherPlayer }
             ))
             setOtherPlayers((oldOtherPlayer) => updatedOtherPlayer(oldOtherPlayer))
