@@ -132,7 +132,7 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
     }, [currentHand])
 
     useEffect(() => {
-        socket.on("data", (data) => onDataSocketEvent(data, playerSeat, otherPlayers))
+        socket.on("data", (data, callback) => onDataSocketEvent(data, playerSeat, otherPlayers, callback))
         return () => { socket.off("data") }
     }, [otherPlayers])
 
