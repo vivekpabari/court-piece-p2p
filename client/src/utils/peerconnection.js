@@ -1,6 +1,7 @@
 import { socket } from "./socket"
 
-export let makingOfferList = [false, false, false, false]
+export const makingOfferList = [false, false, false, false]
+export const srdAnswerPendingList = [false, false, false, false]
 
 const onIceCandidate = (event, sender_seat, receiver_socket_id) => {
     console.log("sending candidate")

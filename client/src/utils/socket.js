@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 
 
-import { makingOfferList } from "./peerconnection"
+import { makingOfferList, srdAnswerPendingList } from "./peerconnection"
 
 const URL = process.env.NODE_ENV === 'production' ? "https://signalling-server-ahxq.onrender.com" : 'http://localhost:8000'
 
@@ -9,7 +9,7 @@ export const socket = io(URL, {
     autoConnect: false
 });
 
-export async function onDataSocketEvent(payload, playerSeat, otherPlayers) {
+export async function onDataSocketEvent(payload, playerSeat, otherPlayers, callback) {
     try {
         const sender_seat = payload.sender_seat
         const data = payload.data
@@ -23,20 +23,25 @@ export async function onDataSocketEvent(payload, playerSeat, otherPlayers) {
             console.log("receiving cadidate")
             await peerConnection.addIceCandidate(data.candidate)
         } else {
-            const offerCollision =
-                data.type === "offer" &&
-                (makingOfferList[sender_seat] || peerConnection.signalingState !== "stable")
-
-            console.log(otherPlayers)
+            // If we have a setRemoteDescription() answer operation pending, then
+            // we will be "stable" by the time the next setRemoteDescription() is
+            // executed, so we count this being stable when deciding whether to
+            // ignore the offer.
             const polite = otherPlayers[sender_seat]?.polite
-            console.log("offerCollision:", offerCollision, "polite: ", polite, "sender_seat:", sender_seat, data.type)
-            const ignoreOffer = !polite && offerCollision
+            const isStable =
+                peerConnection.signalingState === 'stable' ||
+                (peerConnection.signalingState === 'have-local-offer' && srdAnswerPendingList[sender_seat])
+            const ignoreOffer =
+                data.type === 'offer' && !polite && (makingOfferList[sender_seat] || !isStable)
             if (ignoreOffer) {
                 console.log("ignoring offer")
                 return
             }
 
+            srdAnswerPendingList[sender_seat] = data.type === 'answer'
             await peerConnection.setRemoteDescription(data)
+            srdAnswerPendingList[sender_seat] = false
+
             if (data.type === "offer") {
                 console.log("sending answer")
                 await peerConnection.setLocalDescription()
@@ -45,5 +50,7 @@ export async function onDataSocketEvent(payload, playerSeat, otherPlayers) {
         }
     } catch (err) {
         console.log("error on data event for:", payload.sender_seat, "| error: ", err)
+    } finally {
+        callback(true)
     }
 }
