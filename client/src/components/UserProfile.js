@@ -1,23 +1,32 @@
-import { Card } from 'react-bootstrap';
+import React from 'react'
 
 function UserProfile({ playerName, playerSeat, turn }) {
+    const bgColor = playerSeat % 2 === 0 ? '#dc3545' : '#000'
+
+    const cardStyle = {
+        width: '10vw',
+        backgroundColor: bgColor,
+        color: 'white',
+        marginBottom: '0.5rem',
+        borderRadius: "5px",
+        padding: "8px",
+    }
+
+    const cardHeaderStyle = {
+        textAlign: 'center',
+    }
+
     return (
         <span>
-            <Card
-                bg={playerSeat % 2 === 0 ? 'danger' : 'dark'}
-                text="white"
-                style={{ width: '12.5vw' }}
-                className="mb-2"
-            >
-                <Card.Header className='text-center'>{playerName}</Card.Header>
-                <Card.Body>
-                    <Card.Title>{playerSeat === turn && "Turn"}</Card.Title>
-                </Card.Body>
-            </Card>
+            <div style={cardStyle}>
+                <div style={cardHeaderStyle}>{playerName}</div>
+                <hr class="solid" style={{ margin: "0px" }} />
+                <div>
+                    <div style={cardHeaderStyle}>{playerSeat === turn ? <span style={cardHeaderStyle}>Turn</span> : ""} </div>
+                </div>
+            </div>
         </span>
-
     )
-
 }
 
 export default UserProfile
