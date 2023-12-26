@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { Container, Row } from 'react-bootstrap'
 
 
 import { socket, onDataSocketEvent } from "../utils/socket"
@@ -151,17 +150,11 @@ function GameBoard({ playerId, playerName, playerSeat, gameId, _otherPlayers }) 
 
     return <>
         {(teamRedScore >= 7 || teamBlackScore >= 7) && <WinDisplayModal teamBlackScore={teamBlackScore} teamRedScore={teamRedScore} otherPlayers={otherPlayers} playerSeat={playerSeat} />}
-        <Container>
-            <Row >
-                <UpperSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} trumpSuit={trumpSuit} teamRedScore={teamRedScore} teamBlackScore={teamBlackScore} />
-            </Row>
-            <Row>
-                <MiddleSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} currentHand={currentHand} />
-            </Row>
-            <Row>
-                <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} currentHand={currentHand} />
-            </Row>
-        </Container>
+        <div className="GameBoardFlexContainer">
+            <UpperSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} trumpSuit={trumpSuit} teamRedScore={teamRedScore} teamBlackScore={teamBlackScore} />
+            <MiddleSideGameBoard playerSeat={playerSeat} otherPlayers={otherPlayers} turn={turn} currentHand={currentHand} />
+            <LowerSideGameBoard playerName={playerName} playerSeat={playerSeat} turn={turn} handleMyTurn={handleMyTurn} trumpSuit={trumpSuit} cards={cards} currentHand={currentHand} />
+        </div>
         {playerSeat === 0 && !trumpSuit && <SelectTrumpSuit myFirstFivecards={cards.slice(0, 5)} handleSubmitSetTrumpSuit={handleSubmitSetTrumpSuit} />}
     </>
 }

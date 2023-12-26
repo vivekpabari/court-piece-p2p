@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Col } from "react-bootstrap"
+
 
 import UserProfile from "./UserProfile"
 import { sortCards } from "../utils/logic"
-import "../styles/LowerSideGameBoard.css"
+
 
 function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards, trumpSuit, currentHand }) {
     const [myCurrentCards, setMyCurrentCards] = useState(() => {
@@ -32,10 +32,16 @@ function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards,
     }
 
     return (
-        <>
-            <Col xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></Col>
-            <Col>{(playerSeat !== 0 || trumpSuit) && GetCards()}</Col>
-        </>
+        <div style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            gap: "7.5em",
+            paddingLeft: "12.5em",
+        }}>
+            <div xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></div>
+            <div>{(playerSeat !== 0 || trumpSuit) && GetCards()}</div>
+        </div >
     )
 }
 

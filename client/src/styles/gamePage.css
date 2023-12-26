@@ -6,3 +6,58 @@
     background-size: cover;
     background-color: rgba(255, 255, 255, 0.5);
 }
+
+.GameBoardFlexContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    gap: 32px;
+}
+
+.content {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    display: flex;
+    align-items: stretch;
+    will-change: transform;
+    transition: transform 1s;
+    width: 7.5vw;
+}
+
+.flipped {
+    transform: rotateY(180deg);
+}
+
+.front,
+.back {
+    height: 100%;
+    width: 100%;
+    flex: 0 0 auto;
+    backface-visibility: hidden;
+}
+
+.back {
+    transform: rotateY(180deg);
+    margin-left: -100%;
+}
+
+.singleCard {
+    width: 7vw;
+}
+
+.cardList {
+    display: inline-flex;
+    flex-direction: row;
+    position: relative;
+    overflow: hidden;
+    width: 7.5vw;
+}
+
+.cardList:not(:first-child) {
+    margin-left: -50px;
+}
+
+.cardList img {
+    width: 100%;
+    display: block;
+}

@@ -1,51 +1,46 @@
-import { Col } from "react-bootstrap"
-
 import UserProfile from "./UserProfile"
-import "../styles/MiddleSideGameBoard.css"
+
+
+function SingleCard({ backSideCard, drawCard }) {
+    console.log(backSideCard, drawCard)
+    return <div class={"content " + (drawCard ? "flipped" : '')}>
+        <div class="front">
+            <img className="singleCard" src={process.env.PUBLIC_URL + "/cards/" + backSideCard + ".svg"} alt="cards" />
+        </div>
+        <div class="back">
+            <img className="singleCard" src={process.env.PUBLIC_URL + "/cards/" + drawCard + ".svg"} />
+        </div>
+    </div>
+}
 
 function MiddleSideGameBoard({ playerSeat, otherPlayers, turn, currentHand }) {
     return (
-        <>
-            <Col><UserProfile playerName={otherPlayers[(playerSeat + 3) % 4].player_name} playerSeat={(playerSeat + 3) % 4} turn={turn} /></Col>
-            <Col xs={8}>
-                <div className="parent">
-                    <div className="div1">
-                        <div id="front" className={"cardFront" + (currentHand[(playerSeat + 2) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + ((playerSeat + 2) % 2 === 0 ? '2B' : '1B') + ".svg"} />
-                        </div>
-                        <div id="back" className={"cardBack" + (currentHand[(playerSeat + 2) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + currentHand[(playerSeat + 2) % 4] + ".svg"} />
-                        </div>
-                    </div>
-                    <div className="div2">
-                        <div id="front" className={"cardFront" + (currentHand[(playerSeat + 1) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + ((playerSeat + 1) % 2 === 0 ? '2B' : '1B') + ".svg"} />
-                        </div>
-                        <div id="back" className={"cardBack" + (currentHand[(playerSeat + 1) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + currentHand[(playerSeat + 1) % 4] + ".svg"} />
-                        </div>
-                    </div>
-                    <div className="div3">
-                        <div id="front" className={"cardFront" + (currentHand[playerSeat] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + ((playerSeat) % 2 === 0 ? '2B' : '1B') + ".svg"} />
-                        </div>
-                        <div id="back" className={"cardBack" + (currentHand[playerSeat] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + currentHand[playerSeat] + ".svg"} />
-                        </div>
-                    </div>
-                    <div className="div4">
-                        <div id="front" className={"cardFront" + (currentHand[(playerSeat + 3) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + ((playerSeat + 3) % 2 === 0 ? '2B' : '1B') + ".svg"} />
-                        </div>
-                        <div id="back" className={"cardBack" + (currentHand[(playerSeat + 3) % 4] ? ' flipped' : '')}>
-                            <img className="cards" src={process.env.PUBLIC_URL + "/cards/" + currentHand[(playerSeat + 3) % 4] + ".svg"} />
-                        </div>
-                    </div>
+        <div style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+        }}>
+            <div><UserProfile playerName={otherPlayers[(playerSeat + 3) % 4].player_name} playerSeat={(playerSeat + 3) % 4} turn={turn} /></div>
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+            }}>
+                <SingleCard backSideCard={(playerSeat + 3) % 2 === 0 ? '2B' : '1B'} drawCard={currentHand[(playerSeat + 3) % 4]} />
+                <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "8px",
+                }}>
+                    <SingleCard backSideCard={(playerSeat + 2) % 2 === 0 ? '2B' : '1B'} drawCard={currentHand[(playerSeat + 2) % 4]} />
+                    <SingleCard backSideCard={playerSeat % 2 === 0 ? '2B' : '1B'} drawCard={currentHand[playerSeat % 4]} />
                 </div>
-            </Col>
-            <Col><UserProfile playerName={otherPlayers[(playerSeat + 1) % 4].player_name} playerSeat={(playerSeat + 1) % 4} turn={turn} /></Col>
-        </>
-
+                <SingleCard backSideCard={(playerSeat + 1) % 2 === 0 ? '2B' : '1B'} drawCard={currentHand[(playerSeat + 1) % 4]} />
+            </div>
+            <div><UserProfile playerName={otherPlayers[(playerSeat + 1) % 4].player_name} playerSeat={(playerSeat + 1) % 4} turn={turn} /></div>
+        </div>
     )
 }
 
