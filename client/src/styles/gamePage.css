@@ -10,8 +10,13 @@
 .GameBoardFlexContainer {
     display: flex;
     flex-direction: column;
-    padding: 32px;
-    gap: 32px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    padding-left: 32px;
+    padding-right: 32px;
+    gap: 24px;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .content {
