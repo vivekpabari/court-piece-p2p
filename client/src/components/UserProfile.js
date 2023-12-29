@@ -10,20 +10,18 @@ function UserProfile({ playerName, playerSeat, turn }) {
         marginBottom: '0.5rem',
         borderRadius: "5px",
         padding: "8px",
+        boxShadow: playerSeat === turn && "0px 0px 15px 10px #fff",
     }
 
     const cardHeaderStyle = {
         textAlign: 'center',
+        fontSize: 'larger',
     }
 
     return (
         <span>
             <div style={cardStyle}>
                 <div style={cardHeaderStyle}>{playerName}</div>
-                <hr class="solid" style={{ margin: "0px" }} />
-                <div>
-                    <div style={cardHeaderStyle}>{playerSeat === turn ? <span style={cardHeaderStyle}>Turn</span> : ""} </div>
-                </div>
             </div>
         </span>
     )

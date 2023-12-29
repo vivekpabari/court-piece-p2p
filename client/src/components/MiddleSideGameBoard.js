@@ -2,13 +2,12 @@ import UserProfile from "./UserProfile"
 
 
 function SingleCard({ backSideCard, drawCard }) {
-    console.log(backSideCard, drawCard)
     return <div class={"content " + (drawCard ? "flipped" : '')}>
         <div class="front">
             <img className="singleCard" src={process.env.PUBLIC_URL + "/cards/" + backSideCard + ".svg"} alt="cards" />
         </div>
         <div class="back">
-            <img className="singleCard" src={process.env.PUBLIC_URL + "/cards/" + drawCard + ".svg"} />
+            <img className="singleCard" src={process.env.PUBLIC_URL + "/cards/" + drawCard + ".svg"} alt="cards" />
         </div>
     </div>
 }

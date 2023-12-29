@@ -26,7 +26,7 @@ function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards,
     const GetCards = () => {
         return myCurrentCards.map(card => (
             <span className="cardList">
-                <img src={process.env.PUBLIC_URL + "/cards/" + card + ".svg"} onClick={() => cardClick(card)} />
+                <img src={process.env.PUBLIC_URL + "/cards/" + card + ".svg"} onClick={() => cardClick(card)} alt="cards" />
             </span>
         ))
     }
@@ -39,7 +39,7 @@ function LowerSideGameBoard({ playerName, playerSeat, turn, handleMyTurn, cards,
             gap: "7.5em",
             paddingLeft: "12.5em",
         }}>
-            <div xs="2"><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></div>
+            <div style={{ alignSelf: "center" }}><UserProfile playerName={playerName} playerSeat={playerSeat} turn={turn} /></div>
             <div>{(playerSeat !== 0 || trumpSuit) && GetCards()}</div>
         </div >
     )
