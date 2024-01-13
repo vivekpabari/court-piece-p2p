@@ -3,13 +3,17 @@ import copy
 import random
 
 from flask import Flask, request
-
 from flask_socketio import SocketIO, emit, join_room
+from engineio.payload import Payload
+
+Payload.max_decode_packets = 50
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*",
+                    logger=True, engineio_logger=True)
 
 game_room_details = dict()
 cards_room_details = dict()
@@ -106,10 +110,11 @@ def transfer_data(message):
     }
 
     def call(i):
-        if i == 3:
+        if i == 12:
+            print("Message not send")
             return
         try:
-            socketio.call("data", payload, to=message["to"], timeout=30)
+            socketio.call("data", payload, to=message["to"], timeout=10)
             return
         except:
             call(i + 1)
