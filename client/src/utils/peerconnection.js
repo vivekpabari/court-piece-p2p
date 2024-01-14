@@ -31,6 +31,14 @@ export function createPeerConnection(sender_seat, receiverPlayerSeat, receiverSo
             console.log("restarting ICE")
             peerConnection.restartIce()
         }
+        if (peerConnection.iceConnectionState === "disconnected") {
+            setTimeout(() => {
+                if (peerConnection.iceConnectionState === "disconnected") {
+                    console.log("restarting ICE")
+                    peerConnection.restartIce()
+                }
+            }, 5000)
+        }
     }
     peerConnection.onconnectionstatechange = event => {
         console.log(peerConnection.connectionState)
